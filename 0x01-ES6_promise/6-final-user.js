@@ -6,9 +6,9 @@ export default function handleProfileSignup(firstName, lastName, fileName) {
     .then((results) => {
       results.map((result) => {
         if (result.status === 'rejected') {
-          result.value = result.reason.message
+          result.value = result.reason.message;
         }
-    })
-    return results
-  })
+      });
+      return results;
+    });
 }
