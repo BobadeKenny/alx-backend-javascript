@@ -4,50 +4,54 @@ const fs = require('fs').promises;
 const hostname = '127.0.0.1';
 const port = 1245;
 const app = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
   if (req.url === '/') {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
     res.end('Hello Holberton School!');
-  }
-  if (req.url === '/students') {
-    fs.readFile(process.argv[2], 'utf-8')
-      .then((data) => {
-        res.write('This is the list of our students\n');
-        // Split the file by new line characters and filter out any empty lines
-        const lines = data.split('\n').filter((line) => line.trim() !== '');
+  } else if (req.url === '/students') {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain');
+    res.write('This is the list of our students');
+    // Attempt to read the file asynchronously
+    console.log(process.argv)
+    // const filename = process.argv[1];
+    const file = fs.readFile("database.csv", 'utf-8');
 
-        // Get the number of students by counting the number of non-empty lines
-        const numberOfStudents = lines.length - 1;
+    // Split the file by new line characters and filter out any empty lines
+    const lines = file.split('\n').filter((line) => line.trim() !== '');
 
-        // Log the total number of students
-        res.write(`Number of students: ${numberOfStudents}\n`);
+    // Get the number of students by counting the number of non-empty lines
+    const numberOfStudents = lines.length - 1;
 
-        // Create an object to keep track of the number of students in each field
-        const studentsByField = {};
+    // Log the total number of students
+    res.write(`Number of students: ${numberOfStudents}`);
 
-        // Loop through each line of the file and extract the field and name of each student
-        for (let i = 1; i < lines.length; i += 1) {
-          const name = lines[i].split(',')[0];
-          const field = lines[i].split(',')[3];
-          if (!studentsByField[field]) {
-            studentsByField[field] = [];
-          }
-          studentsByField[field].push(name);
-        }
+    // Create an object to keep track of the number of students in each field
+    const studentsByField = {};
 
-        for (const [field, students] of Object.entries(studentsByField)) {
-          res.write(`Number of students in ${field}: ${students.length}. List: ${students.join(', ')}\n`);
-        }
-        res.end();
-      })
-      .catch((error) => {
-        res.statusCode = 404;
-        res.end(error.message);
-        throw new Error('Cannot load the database');
-      });
+    // Loop through each line of the file and extract the field and name of each student
+    for (let i = 1; i < lines.length; i += 1) {
+      const name = lines[i].split(',')[0];
+      const field = lines[i].split(',')[3];
+      if (!studentsByField[field]) {
+        studentsByField[field] = [];
+      }
+      studentsByField[field].push(name);
+    }
+
+    // Loop through each field and log the number of students in that field, along with their names
+    for (const [field, students] of Object.entries(studentsByField)) {
+      res.write(`Number of students in ${field}: ${students.length}. List: ${students.join(', ')}`);
+    }
+  } else {
+    res.statusCode = 404;
+    res.setHeader('Content-Type', 'text/plain');
+    res.end('Not found');
   }
 });
 
 app.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
 });
+
+module.exports = app;
