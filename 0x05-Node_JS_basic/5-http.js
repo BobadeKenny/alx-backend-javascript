@@ -13,10 +13,19 @@ const app = http.createServer((req, res) => {
     fs.readFile(process.argv[2], 'utf-8')
       .then((data) => {
         res.write('This is the list of our students\n');
+        // Split the file by new line characters and filter out any empty lines
         const lines = data.split('\n').filter((line) => line.trim() !== '');
+
+        // Get the number of students by counting the number of non-empty lines
         const numberOfStudents = lines.length - 1;
+
+        // Log the total number of students
         res.write(`Number of students: ${numberOfStudents}\n`);
+
+        // Create an object to keep track of the number of students in each field
         const studentsByField = {};
+
+        // Loop through each line of the file and extract the field and name of each student
         for (let i = 1; i < lines.length; i += 1) {
           const name = lines[i].split(',')[0];
           const field = lines[i].split(',')[3];
@@ -25,13 +34,16 @@ const app = http.createServer((req, res) => {
           }
           studentsByField[field].push(name);
         }
+
         for (const [field, students] of Object.entries(studentsByField)) {
           res.write(`Number of students in ${field}: ${students.length}. List: ${students.join(', ')}\n`);
         }
         res.end();
       })
       .catch((error) => {
-        res.end(`This is the list of our students\n${error.message}`);
+        res.statusCode = 404;
+        res.end(error.message);
+        throw new Error('Cannot load the database');
       });
   }
 });
