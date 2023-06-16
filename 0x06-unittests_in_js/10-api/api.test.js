@@ -15,13 +15,7 @@ describe("Index page", function() {
     });
     it("check correct content", function(done) {
 	request(options, function(err, res, body) {
-	    expect(body).to.contain("Welcome to the payment system");
-	    done();
-	});
-    });
-    it("check correct content length", function(done) {
-	request(options, function(err, res, body) {
-	    expect(res.headers['content-length']).to.equal('29');
+	    expect(body).to.equal("Welcome to the payment system");
 	    done();
 	});
     });
@@ -36,7 +30,7 @@ describe("Cart page", function() {
     });
     it("check correct content for correct url", function(done) {
 	request.get("http://localhost:7865/cart/12", function(err, res, body) {
-	    expect(body).to.contain("Payment methods for cart 12");
+	    expect(body).to.equal("Payment methods for cart 12");
 	    done();
 	});
     });
